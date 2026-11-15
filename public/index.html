@@ -344,7 +344,7 @@ function renderPanel(){
   const offline=ST.seats.map((s,i)=>({s,i})).filter(x=>x.s&&!x.s.bot&&!x.s.online&&x.i!==ST.me);
   if(ph==='lobby'){
     const full=ST.seats.every(Boolean);
-    h+=`<div class="box"><b>Lade deine Freunde ein:</b> Schick ihnen den Link oder den Code <b>${ST.code}</b>.${ST.isHost?' Leere Plätze kannst du mit Bots füllen.':' Der Gastgeber startet das Spiel.'}
+    h+=`<div class="box"><b>Lade deine Freunde ein:</b> Schick ihnen den Link oder den Code <b>${ST.code}</b>.${ST.isHost?' Leere Plätze kannst du mit Bots füllen.':' Der Gastgeber startet das Spiel.'} ${ST.settings.trainer?'<br>💡 Du spielst allein gegen Bots – der Trainer ist dabei.':'<br>Mit mehreren echten Spielern ist der Trainer aus.'}
       <div class="seatlist">${ST.seats.map((s,i)=>`<div class="sl"><span>${s?(s.bot?'🤖 ':`<span class="dot${s.online?'':' off'}"></span>`)+esc(s.name)+(s.host?' · Gastgeber':'')+(i===ST.me?' (du)':''):`<i style="opacity:.7">Platz ${i+1} frei</i>`}</span><span>${ST.isHost?(s?(i!==ST.me?`<button class="ghost xs" data-kick="${i}">entfernen</button>`:''):`<button class="ghost xs" data-bot="${i}">🤖 Bot</button>`):''}</span></div>`).join('')}</div>
       <div class="row" style="margin-top:10px"><button class="ghost sm" id="bInvite2">Link teilen</button>${ST.isHost?`<button class="gold" id="bStart" ${full?'':'disabled'} style="margin-left:auto">Spiel starten</button>`:''}</div></div>`;
   }else if(ph==='bid'){
@@ -432,10 +432,10 @@ function openSettings(){
   const hopt=(k,t,d)=>`<label><input type="checkbox" data-h="${k}" ${ST.settings[k]?'checked':''} ${ST.isHost?'':'disabled'}><span><b>${t}</b><br><span class="hint">${d}</span></span></label>`;
   openModal(`<h2>Einstellungen</h2>
   <h3>Für dich</h3>
+  <p class="hint">${ST.settings.trainer?'Der Trainer ist aktiv, weil du allein gegen Bots spielst.':'Der Trainer ist aus, weil noch andere echte Spieler am Tisch sitzen. Ihn gibt es nur, wenn du allein gegen Bots spielst.'}</p>
   ${opt('feedback','Trainer-Feedback nach jedem Zug','Nach deiner Karte sagt dir der Trainer, ob er genauso gespielt hätte – und warum.')}
   ${opt('autoTip','Tipp automatisch zeigen','Der Trainer zeigt dir schon vor deinem Zug, welche Karte er spielen würde.')}
   <h3>Für den ganzen Tisch ${ST.isHost?'':'(nur Gastgeber)'}</h3>
-  ${hopt('trainer','Trainer erlaubt','Alle dürfen sich Tipps holen. Für ernste Runden ausschalten.')}
   ${hopt('aids','Lernhilfen anzeigen','Augen live mitzählen, Trümpfe markieren, Trümpfe draußen zählen.')}
   <div class="row" style="justify-content:space-between;margin-top:14px">
     <span class="row">${ST.isHost?'<button class="ghost" id="rst">Kontostände auf 0</button>':''}<button class="ghost" id="lv">Tisch verlassen</button></span>

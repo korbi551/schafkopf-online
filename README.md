@@ -5,7 +5,7 @@ Schafkopf im Browser für bis zu 4 Leute. Freie Plätze übernehmen Bots. Dazu g
 - Sauspiel, Wenz und Farbsolo, mit allen Regeln: Farbzwang, Trumpfzwang, Rufsau und Davonlaufen
 - Tisch aufmachen, Link verschicken, mitspielen. Kein Login.
 - Bots füllen freie Plätze. Ist jemand offline, kann der Gastgeber einen Bot einspringen lassen.
-- Trainer, den der Gastgeber pro Tisch ein- oder ausschalten kann:
+- Trainer, aber nur, wenn ein Mensch allein gegen Bots spielt (sobald mehrere echte Spieler am Tisch sitzen, ist er aus):
   - Beim Ansagen: Handstärke nach Punkten und eine Simulation mit Gewinnchance und Ertrag für jedes Spiel
   - Beim Ausspielen: Lage am Tisch, beste Karte per Monte-Carlo-Simulation und Feedback nach jedem Zug
 - Abrechnung: Sauspiel 10 ct, Solo/Wenz 50 ct, Schneider/Schwarz je +10 ct, Laufende je +10 ct

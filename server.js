@@ -23,6 +23,8 @@ const token = () => crypto.randomBytes(16).toString('hex');
 const names = r => r.seats.map((s, i) => (s ? s.name : 'Platz ' + (i + 1)));
 const isBot = (r, i) => { const s = r.seats[i]; return !s || s.bot || s.botControl; };
 const humans = r => r.seats.filter(s => s && !s.bot);
+// Trainer gibt es nur, wenn genau ein echter Mensch am Tisch sitzt (alle anderen sind Bots).
+const trainerOn = r => humans(r).length === 1;
 const seatOf = (r, t) => (t ? r.seats.findIndex(s => s && s.token === t) : -1);
 function gameText(o) { return o.type === 'sau' ? `Sauspiel auf die ${E.SUITNAME[o.suit]}` : o.type === 'wenz' ? 'Wenz' : `${E.SUITNAME[o.suit]}-Solo`; }
 
@@ -31,7 +33,7 @@ function newRoom() {
     code: roomCode(), seats: [null, null, null, null], host: null, money: [0, 0, 0, 0], dealer: 3,
     g: null, phase: 'lobby', msg: 'Warte auf Mitspieler …', bubbles: {}, result: null, resultId: 0,
     lastTrick: null, chat: [], clients: new Set(), timer: null, collectTimer: null,
-    settings: { trainer: true, aids: true }, updated: Date.now(), games: 0,
+    settings: { aids: true }, updated: Date.now(), games: 0,
   };
   rooms.set(r.code, r);
   return r;
@@ -151,7 +153,7 @@ function view(r, seat) {
     code: r.code, me: seat, isHost: seat >= 0 && r.seats[seat] && r.seats[seat].token === r.host,
     seats: r.seats.map(s => s && { name: s.name, bot: !!s.bot, botControl: !!s.botControl, online: s.bot || s.conn > 0, host: s.token === r.host }),
     money: r.money, dealer: r.dealer, phase: r.phase, msg: r.msg, bubbles: r.bubbles, chat: r.chat.slice(-30),
-    settings: r.settings, lastTrick: r.lastTrick, result: r.phase === 'end' ? r.result : null, games: r.games,
+    settings: Object.assign({}, r.settings, { trainer: trainerOn(r) }), lastTrick: r.lastTrick, result: r.phase === 'end' ? r.result : null, games: r.games,
   };
   if (g && r.phase !== 'lobby') {
     const myTurn = r.phase === 'play' && g.turn === seat && g.trick.length < 4;
@@ -279,7 +281,7 @@ async function api(req, res, url) {
   const between = ['lobby', 'end', 'none'].includes(r.phase);
 
   if (route === '/api/tip') {
-    if (!r.settings.trainer) return send(res, 403, { error: 'Der Gastgeber hat den Trainer ausgeschaltet.' });
+    if (!trainerOn(r)) return send(res, 403, { error: 'Den Trainer gibt es nur, wenn du allein gegen Bots spielst.' });
     const g = r.g;
     if (r.phase === 'bid' && bidTurn(r) === seat) {
       const html = E.run(g, seat, names(r), () => E.bidTipHTML(g.best ? g.best.rank : 0));
@@ -340,7 +342,6 @@ async function api(req, res, url) {
     }
     case 'settings': {
       if (!host) return fail('Nur der Gastgeber kann das ändern.');
-      if (typeof a.trainer === 'boolean') r.settings.trainer = a.trainer;
       if (typeof a.aids === 'boolean') r.settings.aids = a.aids;
       break;
     }
