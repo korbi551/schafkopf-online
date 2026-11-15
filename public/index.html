@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0d3321">
+<title>Schafkopf mit Freunden</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔔</text></svg>">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,sans-serif;background:#0d3321;color:#f4efe2;-webkit-tap-highlight-color:transparent}
+#app{max-width:560px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column;padding:8px 8px 14px;gap:7px}
+header{display:flex;justify-content:space-between;align-items:center;gap:6px}
+.brand{font-weight:800;font-size:17px;letter-spacing:.2px}
+.brand small{display:block;font-weight:500;font-size:11px;opacity:.7}
+.hbtns{display:flex;gap:6px}
+button{font:inherit;border:0;border-radius:10px;padding:8px 12px;background:#f4efe2;color:#183b2a;font-weight:650;cursor:pointer;font-size:14px}
+button:active{transform:scale(.97)}
+button.ghost{background:rgba(255,255,255,.13);color:#f4efe2}
+button.gold{background:#e8b84a;color:#2b1d00}
+button.sm{padding:6px 9px;font-size:13px}
+button.xs{padding:3px 7px;font-size:11.5px;border-radius:7px}
+button:disabled{opacity:.4}
+input[type=text]{font:inherit;font-size:16px;padding:10px 12px;border-radius:10px;border:0;width:100%;background:#fffdf6;color:#1f2a22}
+#table{background:radial-gradient(ellipse at center,#22834f 0%,#176039 62%,#104a2c 100%);border-radius:18px;padding:8px;box-shadow:inset 0 0 0 3px #6b4a22,inset 0 0 34px rgba(0,0,0,.35);display:flex;flex-direction:column;gap:4px}
+.mid{display:grid;grid-template-columns:82px 1fr 82px;align-items:center;gap:4px}
+.seat{background:rgba(0,0,0,.24);border-radius:12px;padding:5px 6px;font-size:12px;text-align:center;border:2px solid transparent;transition:border-color .2s,box-shadow .2s;min-height:52px}
+.seat.turn{border-color:#e8b84a;box-shadow:0 0 12px rgba(232,184,74,.55)}
+.seat.empty{opacity:.6;border:2px dashed rgba(255,255,255,.3)}
+#s2,#s0{min-width:160px;margin:0 auto}
+.nm{font-weight:750;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#7ddc8a;margin-right:4px;vertical-align:middle}
+.dot.off{background:#ff9f7a}
+.chip{display:inline-block;font-size:10px;padding:1px 6px;border-radius:8px;background:#e8b84a;color:#2b1d00;font-weight:750;margin:2px 1px 0}
+.chip.p{background:#8fd0ff;color:#002a4a}
+.chip.d{background:rgba(255,255,255,.2);color:#fff}
+.sub{opacity:.85;font-size:11px;margin-top:1px}
+.bubble{margin-top:3px;font-size:11px;background:#fffdf6;color:#1d2a20;border-radius:8px;padding:2px 6px;display:inline-block;font-weight:650}
+#trick{position:relative;height:186px}
+#trick .card{position:absolute;width:50px;height:75px}
+#trick .card .sy{font-size:24px}
+.slot0{left:50%;bottom:0;transform:translateX(-50%)}
+.slot1{left:2px;top:50%;transform:translateY(-50%) rotate(-7deg)}
+.slot2{left:50%;top:0;transform:translateX(-50%)}
+.slot3{right:2px;top:50%;transform:translateY(-50%) rotate(7deg)}
+#trick .center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:12px;opacity:.85;text-align:center;width:130px}
+.card{background:#fffdf6;border-radius:7px;border:2px solid #999;color:#222;position:relative;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 5px rgba(0,0,0,.35);user-select:none;-webkit-user-select:none}
+.card .r{position:absolute;top:3px;left:4px;font-weight:850;font-size:13px;line-height:1}
+.card .r2{position:absolute;bottom:3px;right:4px;font-weight:850;font-size:13px;line-height:1;transform:rotate(180deg)}
+.card .sy{font-size:clamp(16px,5vw,24px);line-height:1}
+.sE{border-color:#8a5a2b}.sE .r,.sE .r2{color:#7a4a1b}
+.sG{border-color:#2f7d32}.sG .r,.sG .r2{color:#1f6d22}
+.sH{border-color:#c62828}.sH .r,.sH .r2{color:#b71c1c}
+.sS{border-color:#d49b00}.sS .r,.sS .r2{color:#9a6f00}
+.card.win{box-shadow:0 0 0 3px #e8b84a,0 0 18px #e8b84a}
+.card.trump::after{content:'';position:absolute;top:4px;right:4px;width:7px;height:7px;border-radius:50%;background:#e8b84a;box-shadow:0 0 0 1px #8a6a10}
+#info{font-size:12px;text-align:center;opacity:.92;min-height:16px;line-height:1.35}
+#hand{display:grid;grid-template-columns:repeat(8,1fr);gap:4px}
+#hand .card{aspect-ratio:2/3;width:100%;cursor:pointer;transition:transform .15s,opacity .2s}
+#hand .card.no{opacity:.38;filter:grayscale(.4);cursor:default}
+#hand .card.tip{box-shadow:0 0 0 3px #8fd0ff,0 0 16px #8fd0ff;transform:translateY(-7px)}
+#hand .slotempty{aspect-ratio:2/3}
+#panel{display:flex;flex-direction:column;gap:7px}
+.box{background:rgba(0,0,0,.26);border-radius:12px;padding:9px 11px;font-size:13.5px;line-height:1.45}
+.box b{color:#ffd877}
+.box.trainer{border-left:4px solid #8fd0ff}
+.box.good{border-left-color:#7ddc8a}
+.box.bad{border-left-color:#ff9f7a}
+.box.err{border-left:4px solid #ff9f7a}
+.row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.row.end{justify-content:flex-end}
+.bidlist{font-size:12.5px;opacity:.9}
+.eval{font-size:12.5px;line-height:1.5}
+.eval .ok{color:#7ddc8a;font-weight:700}.eval .no{color:#ff9f7a;font-weight:700}
+.rk{display:grid;grid-template-columns:1.6fr 1fr .8fr;gap:4px;font-size:12.5px;padding:2px 4px;border-radius:6px}
+.rk.head{opacity:.7;font-size:11.5px}
+.rk.top{background:rgba(143,208,255,.18);font-weight:700}
+.okc{color:#7ddc8a}.noc{color:#ff9f7a}
+.hint2{font-size:11.5px;opacity:.7;margin-top:4px}
+details summary{cursor:pointer;opacity:.85;font-size:12px}
+.seatlist{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.seatlist .sl{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.07);border-radius:9px;padding:6px 9px}
+#chat{display:flex;flex-direction:column;gap:6px}
+#chatlog{max-height:150px;overflow:auto;font-size:13px;line-height:1.4}
+#chatlog .m b{color:#ffd877}
+.badge{background:#ff9f7a;color:#2b0d00;border-radius:8px;padding:0 6px;font-size:11px;margin-left:4px}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:12px;z-index:9}
+#modal.hidden{display:none}
+.mbox{background:#fbf7ec;color:#1f2a22;border-radius:16px;max-width:540px;width:100%;max-height:88dvh;overflow:auto;padding:16px 16px 14px;font-size:14px;line-height:1.5}
+.mbox h2{font-size:19px;margin-bottom:6px}
+.mbox h3{font-size:15px;margin:14px 0 4px;color:#155c39}
+.mbox p,.mbox li{margin:3px 0}
+.mbox ul{padding-left:18px}
+.mbox table{border-collapse:collapse;width:100%;font-size:13px;margin:4px 0}
+.mbox td,.mbox th{border-bottom:1px solid #e3dccb;padding:4px 5px;text-align:left}
+.mbox button{background:#155c39;color:#fff}
+.mbox button.ghost{background:#e6dfcd;color:#1f2a22}
+.mbox label{display:flex;gap:10px;align-items:flex-start;margin:9px 0;cursor:pointer}
+.mbox label input{margin-top:4px;transform:scale(1.2)}
+.mbox .hint{font-size:12px;color:#5a6158}
+.pos{color:#1b7a34;font-weight:700}.neg{color:#b3261e;font-weight:700}
+.mini{display:inline-block;padding:0 4px;border-radius:4px;border:1px solid;font-size:12px;font-weight:700;margin:1px;background:#fff}
+.mini.sE{color:#7a4a1b}.mini.sG{color:#1f6d22}.mini.sH{color:#b71c1c}.mini.sS{color:#9a6f00}
+#lobby{display:flex;flex-direction:column;gap:12px;margin-top:20px}
+#lobby .hero{text-align:center;padding:18px 8px}
+#lobby .hero .big{font-size:44px}
+#lobby h1{font-size:24px;margin:6px 0 4px}
+#lobby p{opacity:.85;font-size:14px;line-height:1.45}
+.card2{background:rgba(0,0,0,.25);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#fbf7ec;color:#1f2a22;padding:9px 14px;border-radius:10px;font-size:14px;box-shadow:0 4px 16px rgba(0,0,0,.4);z-index:20;max-width:90vw}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="brand">Schafkopf<small id="hsub">mit Freunden</small></div>
+    <div class="hbtns" id="hbtns"></div>
+  </header>
+
+  <section id="lobby">
+    <div class="hero"><div class="big">🌰🍃❤️🔔</div><h1>Schafkopf mit Freunden</h1><p>Mach einen Tisch auf, schick den Link rum – freie Plätze übernehmen Bots. Mit Trainer, Punktezählung und Abrechnung.</p></div>
+    <div class="card2">
+      <label for="nameIn" style="font-size:13px;opacity:.85">Dein Name</label>
+      <input type="text" id="nameIn" maxlength="16" placeholder="z. B. Korbi" autocomplete="nickname">
+      <button class="gold" id="createBtn">Neuen Tisch aufmachen</button>
+    </div>
+    <div class="card2">
+      <label for="codeIn" style="font-size:13px;opacity:.85">Oder einem Tisch beitreten</label>
+      <input type="text" id="codeIn" maxlength="5" placeholder="Tisch-Code, z. B. K7XQ2" style="text-transform:uppercase" autocomplete="off">
+      <button id="joinBtn">Beitreten</button>
+    </div>
+    <div id="lobbyErr" class="box err hidden"></div>
+  </section>
+
+  <section id="game" class="hidden" style="display:flex;flex-direction:column;gap:7px">
+    <div id="table">
+      <div class="seat" id="s2"></div>
+      <div class="mid"><div class="seat" id="s1"></div><div id="trick"></div><div class="seat" id="s3"></div></div>
+      <div class="seat" id="s0"></div>
+    </div>
+    <div id="info"></div>
+    <div id="hand"></div>
+    <div id="panel"></div>
+    <div id="chat" class="box">
+      <div class="row" style="justify-content:space-between"><b style="color:#f4efe2">Chat</b><button class="ghost xs" id="chatToggle">einblenden</button></div>
+      <div id="chatBody" class="hidden">
+        <div id="chatlog"></div>
+        <form id="chatForm" class="row" style="margin-top:6px;flex-wrap:nowrap"><input type="text" id="chatIn" maxlength="200" placeholder="Nachricht …" style="font-size:14px;padding:7px 10px"><button class="sm">Senden</button></form>
+      </div>
+    </div>
+  </section>
+</div>
+<div id="modal" class="hidden"><div class="mbox" id="mbox"></div></div>
+
+<script>
+'use strict';
+// ---------- Konstanten ----------
+const SUITNAME={E:'Eichel',G:'Gras',H:'Herz',S:'Schellen'};
+const SUITSYM={E:'🌰',G:'🍃',H:'❤️',S:'🔔'};
+const RANKNAME={A:'Sau','10':'Zehn',K:'König',O:'Ober',U:'Unter','9':'Neun','8':'Acht','7':'Sieben'};
+const PTS={A:11,'10':10,K:4,O:3,U:2,'9':0,'8':0,'7':0};
+const card=id=>({id,s:id[0],r:id.slice(1)});
+const cname=id=>{const c=card(id);return SUITNAME[c.s]+'-'+RANKNAME[c.r]};
+const esc=s=>String(s).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+const $=id=>document.getElementById(id);
+const eur=ct=>{const v=(Math.abs(ct)/100).toFixed(2).replace('.',',');return(ct>0?'+':ct<0?'−':'±')+v+' €'};
+const ls={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+
+let CFG=Object.assign({autoTip:false,feedback:true},ls.get('skf_cfg',{}));
+let SES=ls.get('skf_session',null); // {code,token}
+let ST=null,es=null;
+let tip=null;        // angezeigter Tipp {key,data}
+let ana=null;        // Analyse für Feedback {key,data}
+let anaLoading=null;
+let feedback=null;   // {cls,html}
+let shownResult=0,chatOpen=false,chatSeen=0,lastKey=null;
+
+// ---------- Netzwerk ----------
+async function post(path,body){
+  const r=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  let d={};try{d=await r.json()}catch(e){}
+  if(!r.ok)throw new Error(d.error||'Fehler '+r.status);
+  return d;
+}
+const act=action=>post('/api/action',{code:SES.code,token:SES.token,action});
+function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),3200)}
+
+async function join(code){
+  const name=$('nameIn').value.trim();
+  if(!name){showLobbyErr('Bitte gib zuerst deinen Namen ein.');$('nameIn').focus();return}
+  ls.set('skf_name',name);
+  const prev=ls.get('skf_tokens',{});
+  try{
+    const d=await post('/api/join',{name,code:code||undefined,token:code?prev[code.toUpperCase()]:undefined});
+    prev[d.code]=d.token;ls.set('skf_tokens',prev);
+    SES={code:d.code,token:d.token};ls.set('skf_session',SES);
+    history.replaceState(null,'','?tisch='+d.code);
+    connect();
+  }catch(e){showLobbyErr(e.message)}
+}
+function showLobbyErr(m){const e=$('lobbyErr');e.textContent=m;e.classList.remove('hidden')}
+function connect(){
+  if(es)es.close();
+  $('lobby').classList.add('hidden');$('game').classList.remove('hidden');
+  es=new EventSource(`/api/events?code=${encodeURIComponent(SES.code)}&token=${encodeURIComponent(SES.token)}`);
+  es.onmessage=ev=>{ST=JSON.parse(ev.data);onState()};
+  es.onerror=()=>{
+    if(es.readyState===2){ // endgültig zu (z. B. Tisch gibt es nicht mehr)
+      leaveLocal('Die Verbindung zum Tisch ist weg – vielleicht wurde der Server neu gestartet. Mach einfach einen neuen Tisch auf.');
+    }else $('hsub').textContent='Verbindung wird wiederhergestellt …';
+  };
+}
+function leaveLocal(msg){
+  if(es)es.close();es=null;ST=null;SES=null;ls.set('skf_session',null);
+  history.replaceState(null,'',location.pathname);
+  $('game').classList.add('hidden');$('lobby').classList.remove('hidden');renderHeader();
+  if(msg)showLobbyErr(msg);
+}
+
+// ---------- Zustand ----------
+function onState(){
+  if(ST.me<0){const c=ST.code;leaveLocal('Du sitzt nicht (mehr) an diesem Tisch. Gib deinen Namen ein und tritt neu bei.');$('codeIn').value=c;$('joinBtn').classList.add('gold');return}
+  const g=ST.game;
+  if(g&&g.key!==lastKey){lastKey=g.key;tip=null;if(g.turn!==ST.me)ana=null}
+  // Analyse fürs Feedback / Auto-Tipp holen, sobald ich dran bin
+  if(g&&ST.phase==='play'&&g.turn===ST.me&&g.trick.length<4&&ST.settings.trainer&&(CFG.feedback||CFG.autoTip)&&(!ana||ana.key!==g.key)&&anaLoading!==g.key){
+    anaLoading=g.key;
+    post('/api/tip',{code:SES.code,token:SES.token}).then(d=>{if(d.key===g.key){ana={key:d.key,data:d};if(CFG.autoTip)tip=ana;render()}}).catch(()=>{}).finally(()=>{if(anaLoading===g.key)anaLoading=null});
+  }
+  if(g&&ST.phase==='bid'&&g.bidTurn===ST.me&&CFG.autoTip&&ST.settings.trainer&&!tip)fetchTip();
+  if(ST.phase==='end'&&ST.result&&ST.result.id!==shownResult){shownResult=ST.result.id;setTimeout(showResult,600)}
+  if(ST.phase==='bid')feedback=null;
+  render();
+}
+async function fetchTip(){
+  const key=ST.game&&ST.game.key;
+  if(ST.phase==='play'&&ana&&ana.key===key){tip=ana;render();return}
+  tip={key,loading:true};render();
+  try{const d=await post('/api/tip',{code:SES.code,token:SES.token});tip={key,data:d};if(d.kind==='play')ana={key:d.key,data:d}}
+  catch(e){tip={key,data:{kind:'info',html:esc(e.message)}}}
+  render();
+}
+async function playCard(id){
+  const g=ST.game;if(!g||!g.legal.length)return;
+  if(!g.legal.includes(id)){
+    try{await act({type:'play',card:id})}catch(e){feedback={cls:'bad',html:esc(e.message)};render()}
+    return;
+  }
+  // Feedback vorbereiten (vor dem Zug, damit die Lage stimmt)
+  const a=ana&&ana.key===g.key?ana.data:null;
+  if(a&&CFG.feedback){
+    if(a.forced)feedback={cls:'',html:a.why};
+    else{
+      const best=a.ranked.find(r=>r.id===a.best),mine=a.ranked.find(r=>r.id===id);
+      const nums=r=>`${Math.round(r.win)} % Gewinnchance, Ø ${Math.round(r.pts)} Augen`;
+      if(id===a.best)feedback={cls:'good',html:`👍 <b>Richtig gespielt</b> (${nums(mine)}). ${a.why}`};
+      else if(best.ev-mine.ev<=a.tol)feedback={cls:'good',html:`👍 <b>Gut – praktisch gleich stark wie ${cname(best.id)}</b> (${nums(mine)} vs. ${nums(best)}). ${a.desc[id]}`};
+      else feedback={cls:'bad',html:`🤔 <b>Besser wäre ${cname(best.id)} gewesen</b> (${nums(best)} – deine Karte: ${nums(mine)}).<br>${a.why}<details style="margin-top:4px"><summary>Lage beim Zug</summary>${a.sit}</details>`};
+    }
+  }else if(!CFG.feedback)feedback=null;
+  tip=null;
+  try{await act({type:'play',card:id})}catch(e){feedback={cls:'bad',html:esc(e.message)};render()}
+}
+
+// ---------- Darstellung ----------
+const rel=abs=>(abs-ST.me+4)%4;
+const absOf=r=>(ST.me+r)%4;
+const nameOf=i=>ST.seats[i]?ST.seats[i].name:'Platz '+(i+1);
+function cardHTML(id,cls=''){const c=card(id);return `<div class="card s${c.s} ${cls}" data-id="${c.id}"><span class="r">${c.r}</span><span class="sy">${SUITSYM[c.s]}</span><span class="r2">${c.r}</span></div>`}
+function renderHeader(){
+  const h=$('hbtns');
+  if(!ST){h.innerHTML=`<button class="ghost sm" id="bRules">Regeln &amp; Tipps</button>`;$('hsub').textContent='mit Freunden'}
+  else{h.innerHTML=`<button class="ghost sm" id="bInvite">Einladen</button><button class="ghost sm" id="bRules">Regeln</button><button class="ghost sm" id="bSet" aria-label="Menü">⚙︎</button>`;
+    $('hsub').textContent=`Tisch ${ST.code}${ST.games?` · ${ST.games} Spiel${ST.games>1?'e':''}`:''}`;
+    $('bInvite').onclick=invite;$('bSet').onclick=openSettings}
+  $('bRules').onclick=openRules;
+}
+function render(){
+  renderHeader();
+  if(!ST)return;
+  const g=ST.game,ph=ST.phase;
+  // Plätze
+  for(let r=0;r<4;r++){
+    const i=absOf(r),s=ST.seats[i],el=$('s'+r);
+    if(!s){el.className='seat empty';el.innerHTML=`<div class="nm">frei</div><div class="sub">Platz ${i+1}</div>${ST.isHost&&ph==='lobby'?`<button class="ghost xs" data-bot="${i}" style="margin-top:4px">🤖 Bot</button>`:''}`;continue}
+    const chips=[];
+    if(ph!=='lobby'&&i===ST.dealer)chips.push('<span class="chip d">Geber</span>');
+    if(g&&g.declarer===i)chips.push('<span class="chip">Spieler</span>');
+    if(g&&g.partner===i)chips.push(`<span class="chip p">Partner${g.partnerSecret?' (geheim)':''}</span>`);
+    const sub=[];
+    if(g&&ph!=='lobby')sub.push(`${g.counts[i]} Karte${g.counts[i]===1?"":"n"}`);
+    if(g&&g.won&&ph!=='bid'&&ph!=='lobby')sub.push(`${g.won[i]} Augen`);
+    const status=s.bot?'🤖 ':s.botControl?'🤖 ':`<span class="dot${s.online?'':' off'}"></span>`;
+    el.className='seat'+((g&&((ph==='play'&&g.turn===i&&g.trick.length<4)||(ph==='bid'&&g.bidTurn===i)))?' turn':'');
+    el.innerHTML=`<div class="nm">${status}${esc(s.name)}${i===ST.me?' (du)':''}</div>${chips.join('')}<div class="sub">${sub.join(' · ')}</div><div class="sub">${eur(ST.money[i])}${s.botControl?' · Bot spielt':''}</div>${ST.bubbles[i]?`<div class="bubble">${esc(ST.bubbles[i])}</div>`:''}`;
+  }
+  // Stich
+  let th='';
+  if(g&&g.trick.length){for(const t of g.trick)th+=cardHTML(t.id,`slot${rel(t.seat)} ${t.seat===g.trickWinner?'win':''}`)}
+  else if(ph==='play')th=`<div class="center">${g.turn===ST.me?'Du spielst aus':esc(nameOf(g.turn))+' spielt aus'}</div>`;
+  else if(ph==='bid')th=`<div class="center">Wer spielt?</div>`;
+  else if(ph==='lobby')th=`<div class="center">Tisch <b>${ST.code}</b><br>${ST.seats.filter(Boolean).length}/4 Plätze besetzt</div>`;
+  $('trick').innerHTML=th;
+  // Info
+  let info=esc(ST.msg||'');
+  if(g&&(ph==='play'||ph==='end')&&g.name){
+    const line=[`<b>${g.name}</b> · Spieler: ${esc(nameOf(g.declarer))}`];
+    if(ST.settings.aids&&ph==='play')line.push(`Trümpfe draußen: ${g.trumpsOut}${g.type!=='wenz'?` (${g.oberOut} Ober, ${g.unterOut} Unter)`:''}`);
+    if(ST.settings.aids&&g.won&&g.teamsKnown){const P=[0,1,2,3].filter(i=>i===g.declarer||i===g.partner);const pp=P.reduce((a,i)=>a+g.won[i],0),tot=g.won.reduce((a,b)=>a+b,0);line.push(`Spieler-Partei ${pp} : ${tot-pp} Gegner`)}
+    info=line.join(' · ')+'<br>'+info;
+  }
+  $('info').innerHTML=info;
+  // Hand
+  let hh='';
+  if(g&&ph!=='lobby'){
+    const myTurn=g.legal.length>0;
+    const tipId=tip&&tip.data&&tip.data.kind==='play'&&tip.key===g.key?tip.data.best:null;
+    for(const id of g.hand){const cls=[];if(ST.settings.aids&&g.trumps.includes(id))cls.push('trump');
+      if(myTurn){cls.push(g.legal.includes(id)?'ok':'no');if(tipId===id)cls.push('tip')}
+      hh+=cardHTML(id,cls.join(' '))}
+    for(let i=g.hand.length;i<8;i++)hh+='<div class="slotempty"></div>';
+  }
+  $('hand').innerHTML=hh;
+  $('hand').querySelectorAll('.card').forEach(el=>el.onclick=()=>playCard(el.dataset.id));
+  renderPanel();renderChat();
+  document.querySelectorAll('[data-bot]').forEach(b=>b.onclick=()=>act({type:'addBot',seat:+b.dataset.bot}).catch(e=>toast(e.message)));
+}
+function tipBox(){
+  if(!tip)return'';
+  if(tip.loading)return `<div class="box trainer">Der Trainer rechnet alle Möglichkeiten durch …</div>`;
+  const d=tip.data;
+  if(d.kind==='bid')return `<div class="box trainer"><b>Trainer – soll ich spielen?</b><br>${d.html}</div>`;
+  if(d.kind==='info')return `<div class="box trainer">${d.html}</div>`;
+  let t=`<div style="font-size:12.5px;opacity:.92;margin-bottom:6px"><b>Lage:</b><br>${d.sit}</div>`;
+  if(d.forced)t+=`💡 ${d.why}`;
+  else{t+=`💡 <b>Tipp: ${cname(d.best)}</b> – ${d.why}`;
+    t+=`<div class="rk head" style="margin-top:6px"><span>Karte</span><span>Gewinnchance</span><span>Ø Augen</span></div>`+d.ranked.map(r=>`<div class="rk${r.id===d.best?' top':''}"><span>${SUITSYM[r.id[0]]} ${cname(r.id)}</span><span>${Math.round(r.win)} %</span><span>${Math.round(r.pts)}</span></div>`).join('')+`<div class="hint2">${d.valid} mögliche Kartenverteilungen durchgespielt – passend zu allem, was schon gefallen ist.</div>`}
+  return `<div class="box trainer">${t}</div>`;
+}
+function renderPanel(){
+  const p=$('panel'),g=ST.game,ph=ST.phase;let h='';
+  const offline=ST.seats.map((s,i)=>({s,i})).filter(x=>x.s&&!x.s.bot&&!x.s.online&&x.i!==ST.me);
+  if(ph==='lobby'){
+    const full=ST.seats.every(Boolean);
+    h+=`<div class="box"><b>Lade deine Freunde ein:</b> Schick ihnen den Link oder den Code <b>${ST.code}</b>.${ST.isHost?' Leere Plätze kannst du mit Bots füllen.':' Der Gastgeber startet das Spiel.'}
+      <div class="seatlist">${ST.seats.map((s,i)=>`<div class="sl"><span>${s?(s.bot?'🤖 ':`<span class="dot${s.online?'':' off'}"></span>`)+esc(s.name)+(s.host?' · Gastgeber':'')+(i===ST.me?' (du)':''):`<i style="opacity:.7">Platz ${i+1} frei</i>`}</span><span>${ST.isHost?(s?(i!==ST.me?`<button class="ghost xs" data-kick="${i}">entfernen</button>`:''):`<button class="ghost xs" data-bot="${i}">🤖 Bot</button>`):''}</span></div>`).join('')}</div>
+      <div class="row" style="margin-top:10px"><button class="ghost sm" id="bInvite2">Link teilen</button>${ST.isHost?`<button class="gold" id="bStart" ${full?'':'disabled'} style="margin-left:auto">Spiel starten</button>`:''}</div></div>`;
+  }else if(ph==='bid'){
+    const my=g.bidTurn===ST.me;
+    const bl=g.bids.map(b=>`${esc(nameOf(b.seat))}: ${b.bid?(b.bid.type==='sau'?'Sauspiel auf die '+SUITNAME[b.bid.suit]:b.bid.type==='wenz'?'Wenz':SUITNAME[b.bid.suit]+'-Solo'):'weiter'}`).join(' · ');
+    h+=`<div class="box"><div class="bidlist">${bl||'Reihum wird angesagt, wer spielen will.'}</div>`;
+    if(my&&g.bidOptions){const o=g.bidOptions;
+      h+=`<div style="margin:8px 0 6px;font-weight:700">Deine Ansage:</div><div class="row"><button class="ghost" data-bid="pass">Weiter</button>`;
+      for(const su of o.sau)h+=`<button data-bid="sau:${su}">Sauspiel ${SUITSYM[su]}</button>`;
+      if(o.high){h+=`<button data-bid="wenz">Wenz</button>`;for(const su of['E','G','H','S'])h+=`<button data-bid="solo:${su}">${SUITSYM[su]} Solo</button>`}
+      h+=`</div>`}
+    else h+=`<div class="hint2" style="margin-top:4px">${g.bidTurn>=0?esc(nameOf(g.bidTurn))+' ist mit der Ansage dran …':''}</div>`;
+    h+=`</div>`;
+    if(my&&ST.settings.trainer)h+=tip&&tip.key===g.key?tipBox():`<div class="row"><button class="gold sm" id="tipb">💡 Trainer fragen</button></div>`;
+  }else if(ph==='play'){
+    if(feedback)h+=`<div class="box trainer ${feedback.cls}">${feedback.html}</div>`;
+    if(g.legal.length){
+      if(tip&&tip.key===g.key)h+=tipBox();
+      h+=`<div class="row"><span style="font-size:13px;opacity:.9;flex:1">Du bist dran – tippe eine Karte an.</span>${ST.settings.trainer&&!(tip&&tip.key===g.key)?'<button class="gold sm" id="tipb">💡 Tipp</button>':''}</div>`;
+    }
+    if(ST.lastTrick)h+=`<div class="row end"><button class="ghost xs" id="bLast">Letzter Stich</button></div>`;
+  }else if(ph==='none'){
+    h+=`<div class="box">Keiner wollte spielen – zammgschmissen.</div><div class="row end"><button id="bNext">Neu geben</button></div>`;
+  }else if(ph==='end'){
+    h+=`<div class="row end"><button class="ghost sm" id="bRes">Abrechnung ansehen</button><button id="bNext">Nächstes Spiel</button></div>`;
+  }
+  if(ST.isHost&&offline.length&&ph!=='lobby')h+=`<div class="box">${offline.map(x=>`${esc(x.s.name)} ist offline. <button class="ghost xs" data-take="${x.i}">${x.s.botControl?'Wieder selbst spielen lassen':'Bot einspringen lassen'}</button>`).join('<br>')}</div>`;
+  p.innerHTML=h;
+  p.querySelectorAll('[data-bid]').forEach(b=>b.onclick=()=>{const v=b.dataset.bid;let bid=null;if(v!=='pass'){const[t,s]=v.split(':');bid={type:t,suit:s}}tip=null;act({type:'bid',bid}).catch(e=>toast(e.message))});
+  p.querySelectorAll('[data-kick]').forEach(b=>b.onclick=()=>act({type:'kick',seat:+b.dataset.kick}).catch(e=>toast(e.message)));
+  p.querySelectorAll('[data-take]').forEach(b=>b.onclick=()=>act({type:'takeover',seat:+b.dataset.take}).catch(e=>toast(e.message)));
+  const on=(id,f)=>{const e=$(id);if(e)e.onclick=f};
+  on('tipb',fetchTip);on('bInvite2',invite);on('bRes',showResult);on('bLast',showLast);
+  on('bStart',()=>act({type:'start'}).catch(e=>toast(e.message)));
+  on('bNext',()=>{feedback=null;act({type:'next'}).catch(e=>toast(e.message))});
+}
+function renderChat(){
+  const log=ST.chat||[];
+  $('chatlog').innerHTML=log.map(m=>`<div class="m"><b>${esc(m.name)}:</b> ${esc(m.text)}</div>`).join('')||'<div style="opacity:.6">Noch keine Nachrichten.</div>';
+  const last=log.length?log[log.length-1].t:0;
+  if(chatOpen){chatSeen=last;$('chatlog').scrollTop=1e6}
+  const unread=log.filter(m=>m.t>chatSeen&&m.seat!==ST.me).length;
+  $('chatToggle').innerHTML=chatOpen?'ausblenden':`einblenden${unread?`<span class="badge">${unread}</span>`:''}`;
+}
+$('chatToggle').onclick=()=>{chatOpen=!chatOpen;$('chatBody').classList.toggle('hidden',!chatOpen);renderChat()};
+$('chatForm').onsubmit=e=>{e.preventDefault();const t=$('chatIn').value.trim();if(!t)return;$('chatIn').value='';act({type:'chat',text:t}).catch(er=>toast(er.message))};
+
+// ---------- Dialoge ----------
+function openModal(html){$('mbox').innerHTML=html;$('modal').classList.remove('hidden');$('mbox').scrollTop=0}
+function closeModal(){$('modal').classList.add('hidden')}
+$('modal').onclick=e=>{if(e.target.id==='modal')closeModal()};
+function invite(){
+  const url=location.origin+'/?tisch='+ST.code;
+  openModal(`<h2>Freunde einladen</h2><p>Schick diesen Link rum:</p><p style="word-break:break-all;background:#efe7d2;padding:8px;border-radius:8px;font-weight:700">${esc(url)}</p><p>Oder nenn den Code <b>${ST.code}</b>.</p>
+  <div class="row end" style="margin-top:10px">${navigator.share?'<button class="ghost" id="shr">Teilen …</button>':''}<button id="cpy">Link kopieren</button><button class="ghost" id="cls">Schließen</button></div>`);
+  $('cpy').onclick=async()=>{try{await navigator.clipboard.writeText(url);$('cpy').textContent='Kopiert ✓'}catch(e){$('cpy').textContent='Bitte manuell kopieren'}};
+  const s=$('shr');if(s)s.onclick=()=>navigator.share({title:'Schafkopf',text:'Spiel mit mir Schafkopf!',url}).catch(()=>{});
+  $('cls').onclick=closeModal;
+}
+function showLast(){
+  const t=ST.lastTrick;if(!t)return;
+  openModal(`<h2>Letzter Stich</h2><table>${t.cards.map(x=>`<tr><td>${esc(nameOf(x.seat))}</td><td><span class="mini s${x.id[0]}">${SUITSYM[x.id[0]]}${x.id.slice(1)}</span> ${cname(x.id)}</td></tr>`).join('')}</table><p>${esc(nameOf(t.winner))} hat den Stich mit <b>${t.pts} Augen</b> bekommen.</p><div class="row end"><button id="cls">OK</button></div>`);
+  $('cls').onclick=closeModal;
+}
+function showResult(){
+  const res=ST.result;if(!res)return;
+  const mine=res.P.includes(ST.me),iWon=mine===res.win;
+  const parts=[`Grundtarif ${res.type==='sau'?'Sauspiel':res.type==='wenz'?'Wenz':'Solo'}: ${res.base} ct`];
+  if(res.schneider)parts.push('Schneider: +10 ct');if(res.schwarz)parts.push('Schwarz: +10 ct');
+  if(res.lauf)parts.push(`${res.lauf} Laufende (${res.laufTeam==='P'?'beim Spieler':'bei den Gegnern'}): +${res.lauf*10} ct`);
+  const tricks=res.tricks.map((t,i)=>`<tr><td>${i+1}</td><td>${t.cards.map(x=>`<span class="mini s${x.id[0]}">${SUITSYM[x.id[0]]}${x.id.slice(1)}</span>`).join('')}</td><td>${esc(nameOf(t.winner))}</td><td>${t.pts}</td></tr>`).join('');
+  openModal(`<h2>${iWon?'🎉 Gewonnen!':'Verloren'}</h2>
+  <p>${esc(nameOf(res.declarer))} hat ${res.gameName} gespielt${res.type==='sau'?` (Partner: ${esc(nameOf(res.partner))})`:''} – <b>${res.win?'gewonnen':'verloren'}</b>${res.schwarz?', <b>schwarz</b>':res.schneider?', <b>Schneider</b>':''}.</p>
+  <h3>Augen</h3><p>Spieler-Partei (${res.P.map(i=>esc(nameOf(i))).join(' & ')}): <b>${res.ptsP}</b><br>Gegner (${res.O.map(i=>esc(nameOf(i))).join(', ')}): <b>${res.ptsO}</b></p>
+  <p class="hint">61 Augen gewinnen. Schneider: Verlierer hat 30 oder weniger. Schwarz: Verlierer hat keinen Stich.</p>
+  <h3>Abrechnung</h3><p>${parts.join('<br>')}<br>= <b>${res.tarif} ct</b> ${res.type==='sau'?'pro Person':'von jedem Gegner'}</p>
+  <table>${[0,1,2,3].map(i=>`<tr><td>${esc(nameOf(i))}</td><td class="${res.delta[i]>=0?'pos':'neg'}">${eur(res.delta[i])}</td><td style="text-align:right">Stand ${eur(ST.money[i])}</td></tr>`).join('')}</table>
+  <h3>Stiche</h3><table><tr><th>#</th><th>Karten</th><th>an</th><th>Augen</th></tr>${tricks}</table>
+  <div class="row end" style="margin-top:12px"><button class="ghost" id="cls">Schließen</button><button id="nxt">Nächstes Spiel</button></div>`);
+  $('cls').onclick=closeModal;
+  $('nxt').onclick=()=>{closeModal();feedback=null;act({type:'next'}).catch(e=>toast(e.message))};
+}
+function openSettings(){
+  const opt=(k,t,d)=>`<label><input type="checkbox" data-k="${k}" ${CFG[k]?'checked':''}><span><b>${t}</b><br><span class="hint">${d}</span></span></label>`;
+  const hopt=(k,t,d)=>`<label><input type="checkbox" data-h="${k}" ${ST.settings[k]?'checked':''} ${ST.isHost?'':'disabled'}><span><b>${t}</b><br><span class="hint">${d}</span></span></label>`;
+  openModal(`<h2>Einstellungen</h2>
+  <h3>Für dich</h3>
+  ${opt('feedback','Trainer-Feedback nach jedem Zug','Nach deiner Karte sagt dir der Trainer, ob er genauso gespielt hätte – und warum.')}
+  ${opt('autoTip','Tipp automatisch zeigen','Der Trainer zeigt dir schon vor deinem Zug, welche Karte er spielen würde.')}
+  <h3>Für den ganzen Tisch ${ST.isHost?'':'(nur Gastgeber)'}</h3>
+  ${hopt('trainer','Trainer erlaubt','Alle dürfen sich Tipps holen. Für ernste Runden ausschalten.')}
+  ${hopt('aids','Lernhilfen anzeigen','Augen live mitzählen, Trümpfe markieren, Trümpfe draußen zählen.')}
+  <div class="row" style="justify-content:space-between;margin-top:14px">
+    <span class="row">${ST.isHost?'<button class="ghost" id="rst">Kontostände auf 0</button>':''}<button class="ghost" id="lv">Tisch verlassen</button></span>
+    <button id="cls">Fertig</button></div>`);
+  $('mbox').querySelectorAll('[data-k]').forEach(i=>i.onchange=()=>{CFG[i.dataset.k]=i.checked;ls.set('skf_cfg',CFG)});
+  $('mbox').querySelectorAll('[data-h]').forEach(i=>i.onchange=()=>act({type:'settings',[i.dataset.h]:i.checked}).catch(e=>toast(e.message)));
+  $('cls').onclick=closeModal;
+  const r=$('rst');if(r)r.onclick=()=>act({type:'resetMoney'}).then(()=>{r.textContent='Zurückgesetzt ✓'}).catch(e=>toast(e.message));
+  $('lv').onclick=()=>{const t=ls.get('skf_tokens',{});act({type:'leave'}).catch(()=>{}).finally(()=>{delete t[SES.code];ls.set('skf_tokens',t);closeModal();leaveLocal()})};
+}
+const RULES=`<h2>Schafkopf – Regeln &amp; Tipps</h2>
+  <h3>Karten &amp; Augen</h3>
+  <table><tr><th>Karte</th><th>Augen</th></tr><tr><td>Sau (Ass)</td><td>11</td></tr><tr><td>Zehn</td><td>10</td></tr><tr><td>König</td><td>4</td></tr><tr><td>Ober</td><td>3</td></tr><tr><td>Unter</td><td>2</td></tr><tr><td>9, 8, 7</td><td>0</td></tr></table>
+  <p>Insgesamt gibt es <b>120 Augen</b>. Mit <b>61</b> gewinnt die Spieler-Partei, bei 60 gewinnen die Gegner.</p>
+  <h3>Trumpf (Sauspiel &amp; Herz-Solo)</h3>
+  <p>Eichel-, Gras-, Herz-, Schellen-<b>Ober</b>, dann Eichel-, Gras-, Herz-, Schellen-<b>Unter</b>, dann Herz-Sau, 10, König, 9, 8, 7 – zusammen 14 Trümpfe. Ober und Unter gehören <b>nicht</b> zu ihrer Farbe!</p>
+  <p>Beim <b>Farbsolo</b> ist statt Herz die Solo-Farbe Trumpf. Beim <b>Wenz</b> sind nur die 4 Unter Trumpf; die Ober sind normale Farbkarten (zwischen König und 9).</p>
+  <h3>Spielarten &amp; Tarif</h3>
+  <ul><li><b>Sauspiel</b> (10 ct): Du rufst eine Sau (Eichel, Gras oder Schellen), die du nicht hast – du brauchst aber mindestens eine Karte dieser Farbe. Wer die Sau hat, ist heimlich dein Partner.</li>
+  <li><b>Wenz</b> und <b>Solo</b> (50 ct): Du spielst allein gegen drei. Jeder Gegner zahlt bzw. bekommt den Tarif.</li>
+  <li>Zuschläge: <b>Schneider</b> +10 ct (Verlierer ≤ 30 Augen), <b>Schwarz</b> +10 ct (Verlierer ohne Stich), <b>Laufende</b> je +10 ct (ab 3 bzw. beim Wenz ab 2 der höchsten Trümpfe lückenlos in einer Partei).</li></ul>
+  <h3>Wichtige Regeln</h3>
+  <ul><li><b>Farbzwang &amp; Trumpfzwang:</b> Angespielte Farbe bzw. Trumpf muss bedient werden. Wer nicht bedienen kann, darf stechen oder abwerfen.</li>
+  <li><b>Rufsau:</b> Wird die gerufene Farbe angespielt, muss die Sau kommen. Sie darf nicht „geschmiert“ (abgeworfen) werden.</li>
+  <li><b>Davonlaufen:</b> Hat der Partner 4 oder mehr Karten der Ruffarbe, darf er sie mit einer kleinen Karte anspielen.</li></ul>
+  <h3>Strategie – die goldenen Regeln</h3>
+  <ul><li><b>„Der Spieler spielt Trumpf, der Gegner spielt Farbe.“</b> Der Spieler zieht den Gegnern die Trümpfe; die Gegner holen sich Augen mit ihren Farbsauen.</li>
+  <li><b>Auf die Sau spielen:</b> Als Gegner im Sauspiel früh die Ruffarbe anspielen – so zeigt sich der Partner, und mit Glück wird die Sau gestochen.</li>
+  <li><b>Schmieren:</b> Hat dein Partner den Stich sicher, wirf eine Sau oder Zehn rein.</li>
+  <li><b>Nie dem Gegner schmieren:</b> Kannst du nicht stechen, gib die Karte mit den wenigsten Augen.</li>
+  <li><b>Als Letzter</b> sticht man mit der billigsten Karte, die reicht. Weiter vorne nur mit einer Karte, die nicht mehr überstochen werden kann – oder hoch, wenn viele Augen drinliegen.</li>
+  <li><b>Hohe Trümpfe nie verschmieren</b> – ein Ober ist mehr wert als seine 3 Augen.</li>
+  <li><b>Frei werden:</b> Wirf Karten aus kurzen Farben ab, dann kannst du später stechen.</li>
+  <li><b>Trümpfe mitzählen:</b> Es gibt 14 (beim Wenz 4). Wenn du weißt, wie viele noch draußen sind, weißt du, wann deine Sauen sicher sind.</li></ul>
+  <h3>Wie stark ist mein Blatt? (Punkte-Methode)</h3>
+  <p>Zähl dein Blatt mit diesen Punkten zusammen – genau so rechnet auch der Trainer:</p>
+  <table><tr><th>Sauspiel / Solo – Trümpfe</th><th>Punkte</th></tr>
+  <tr><td>Eichel-Ober</td><td>3,5</td></tr><tr><td>Gras-Ober</td><td>3</td></tr><tr><td>Herz- / Schellen-Ober</td><td>2,5</td></tr>
+  <tr><td>Eichel- / Gras-Unter</td><td>2</td></tr><tr><td>Herz- / Schellen-Unter</td><td>1,8</td></tr>
+  <tr><td>Trumpf-Sau / Trumpf-Zehn</td><td>1,4 / 1,3</td></tr><tr><td>jeder andere Trumpf</td><td>1</td></tr>
+  <tr><th>Beikarten</th><th></th></tr><tr><td>Farbsau</td><td>+1,5</td></tr><tr><td>Zehn zur eigenen Farbsau</td><td>+0,5</td></tr><tr><td>freie Farbe (ab 5 Trümpfen)</td><td>+0,5</td></tr></table>
+  <ul><li><b>Sauspiel</b>: ab <b>9 Punkten</b> und mindestens 4 Trümpfen. Typisch: 2 Ober + 2 Trümpfe + eine Sau.</li>
+  <li><b>Solo</b>: ab <b>13,5 Punkten</b> mit 6 Trümpfen (7 Trümpfe ab 11,5; mit 3 Obern reichen 5 Trümpfe ab 14). Merksatz: „6 Trumpf, 2 Ober, eine Sau – dann trau.“</li></ul>
+  <table><tr><th>Wenz</th><th>Punkte</th></tr><tr><td>Eichel- / Gras- / Herz- / Schellen-Unter</td><td>4 / 3,5 / 3 / 3</td></tr>
+  <tr><td>Sau</td><td>2,5</td></tr><tr><td>Zehn zur Sau / König dazu</td><td>+1,5 / +1</td></tr><tr><td>jede Karte ab der 4. in einer Farbe mit Sau</td><td>+1</td></tr></table>
+  <ul><li><b>Wenz</b>: ab <b>15 Punkten</b> mit mindestens 2 Untern (Eichel-Unter dabei) oder 3 Untern.</li></ul>
+  <p>Die Punkte sind eine Faustregel. Der Trainer prüft zusätzlich per <b>Simulation</b>: Er spielt dein Blatt viele Male mit zufällig verteilten Gegnerkarten durch und zeigt dir Gewinnchance und durchschnittlichen Ertrag jedes Spiels.</p>
+  <h3>Wie der Trainer Karten-Tipps berechnet</h3>
+  <p>Bei jedem Zug verteilt er die Karten, die du nicht kennst, viele Male neu – aber nur so, wie es zu allem passt, was schon passiert ist: gespielte Karten, wer in welcher Farbe oder Trumpf schon frei ist, wo die Rufsau noch sein kann und dass der Spieler sein Spiel ansagen konnte. Dann spielt er jede deiner erlaubten Karten bis zum Ende durch und vergleicht Gewinnchance und Augen.</p>
+  <h3>Mitzählen lernen</h3>
+  <ul><li>Zähl nur die Stiche <b>deiner Partei</b> – den Rest kennst du aus 120 minus deinen Augen.</li>
+  <li>Denk in Paketen: Sau + Zehn = 21, zwei Sauen = 22, König + Ober = 7.</li>
+  <li>Merk dir nach jedem Stich nur eine Zahl. Ab 61 ist das Spiel gewonnen, ab 91 hast du den Gegner im Schneider.</li></ul>
+  <h3>Spielablauf hier am Tisch</h3>
+  <p>Gespielt wird im Uhrzeigersinn; du sitzt immer unten. Vorhand (links vom Geber) sagt zuerst an und spielt aus. Ein späteres Solo oder ein Wenz überbietet ein Sauspiel. Wollen alle weiter, wird neu gegeben. Freie Plätze und Spieler, die weg sind, kann der Gastgeber durch Bots ersetzen.</p>
+  `;
+function openRules(){openModal(RULES+`<div class="row end" style="margin-top:12px"><button id="cls">Verstanden</button></div>`);$('cls').onclick=closeModal}
+
+// ---------- Start ----------
+$('nameIn').value=ls.get('skf_name','');
+const qp=new URLSearchParams(location.search).get('tisch');
+if(qp)$('codeIn').value=qp.toUpperCase();
+$('createBtn').onclick=()=>join(null);
+$('joinBtn').onclick=()=>{const c=$('codeIn').value.trim().toUpperCase();if(!c){showLobbyErr('Bitte gib den Tisch-Code ein.');return}join(c)};
+$('codeIn').onkeydown=e=>{if(e.key==='Enter')$('joinBtn').click()};
+renderHeader();
+if(qp){
+  const t=ls.get('skf_tokens',{})[qp.toUpperCase()];
+  if(t&&$('nameIn').value){SES={code:qp.toUpperCase(),token:t};connect()}
+  else $('joinBtn').classList.add('gold');
+}else if(SES&&SES.code&&SES.token){history.replaceState(null,'','?tisch='+SES.code);connect()}
+</script>
+</body>
+</html>

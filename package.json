@@ -1,0 +1,10 @@
+{
+  "name": "schafkopf-online",
+  "version": "1.0.0",
+  "description": "Schafkopf mit Freunden im Browser – mit Bots, Trainer und Abrechnung",
+  "main": "server.js",
+  "private": true,
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=18" },
+  "license": "UNLICENSED"
+}
