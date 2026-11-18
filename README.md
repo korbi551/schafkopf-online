@@ -38,3 +38,8 @@ Die Live-Updates laufen über Server-Sent Events (`/api/events`). Dafür muss am
 | `engine.js` | Regeln, Bot-KI, Handbewertung, Trainer-Simulation, Abrechnung |
 | `server.js` | HTTP-Server, Tische, Bots, Server-Sent Events, API |
 | `public/index.html` | komplette Oberfläche (eine Datei) |
+
+## Kartenbilder
+
+Das bayerische Blatt in `public/cards/` stammt von Benjamin Löwe aus dem KDE-Spiel [SchafKopf](https://github.com/benni0815/SchafKopf). Es steht unter der Lizenz [CC BY-NC-SA 2.0 DE](https://creativecommons.org/licenses/by-nc-sa/2.0/de/) und darf nur **nicht-kommerziell** genutzt werden. Details stehen in `public/cards/LICENSE`.
+

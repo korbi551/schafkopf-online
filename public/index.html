@@ -37,25 +37,25 @@ input[type=text]{font:inherit;font-size:16px;padding:10px 12px;border-radius:10p
 .chip.d{background:rgba(255,255,255,.2);color:#fff}
 .sub{opacity:.85;font-size:11px;margin-top:1px}
 .bubble{margin-top:3px;font-size:11px;background:#fffdf6;color:#1d2a20;border-radius:8px;padding:2px 6px;display:inline-block;font-weight:650}
-#trick{position:relative;height:186px}
-#trick .card{position:absolute;width:50px;height:75px}
+#trick{position:relative;height:200px}
+#trick .card{position:absolute;width:52px;height:91px}
 .slot0{left:50%;bottom:0;transform:translateX(-50%)}
 .slot1{left:2px;top:50%;transform:translateY(-50%) rotate(-7deg)}
 .slot2{left:50%;top:0;transform:translateX(-50%)}
 .slot3{right:2px;top:50%;transform:translateY(-50%) rotate(7deg)}
 #trick .center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:12px;opacity:.85;text-align:center;width:130px}
-.card{border-radius:6px;position:relative;box-shadow:0 2px 5px rgba(0,0,0,.35);user-select:none;-webkit-user-select:none;background:#fbf5e3}
-.card svg{width:100%;height:100%;display:block}
-.card .cl{font:700 15px Georgia,"Times New Roman",serif;fill:#2b2b2b}
+.card{border-radius:6px;position:relative;box-shadow:0 2px 6px rgba(0,0,0,.4);user-select:none;-webkit-user-select:none;background:#fff;overflow:hidden}
+.card img{width:100%;height:100%;display:block;pointer-events:none;-webkit-user-drag:none}
 .ico{width:1.15em;height:1.15em;vertical-align:-.22em;display:inline-block}
 .card.win{box-shadow:0 0 0 3px #e8b84a,0 0 18px #e8b84a}
-.card.trump::after{content:'';position:absolute;bottom:5%;right:7%;width:7px;height:7px;border-radius:50%;background:#e8b84a;box-shadow:0 0 0 1px #8a6a10}
+.card.trump::after{content:'';position:absolute;top:0;left:22%;right:22%;height:4px;border-radius:0 0 4px 4px;background:#e8b84a;box-shadow:0 0 0 1px #8a6a10}
 #info{font-size:12px;text-align:center;opacity:.92;min-height:16px;line-height:1.35}
-#hand{display:grid;grid-template-columns:repeat(8,1fr);gap:4px}
-#hand .card{aspect-ratio:2/3;width:100%;cursor:pointer;transition:transform .15s,opacity .2s}
-#hand .card.no{opacity:.38;filter:grayscale(.4);cursor:default}
-#hand .card.tip{box-shadow:0 0 0 3px #8fd0ff,0 0 16px #8fd0ff;transform:translateY(-7px)}
-#hand .slotempty{aspect-ratio:2/3}
+#hand{--w:min(86px,21.5vw);--step:calc((min(544px,100vw - 16px) - var(--w)) / 7);display:flex;justify-content:center;padding-top:9px;min-height:calc(var(--w) * 1.754 + 9px)}
+#hand .card{flex:0 0 auto;width:var(--w);height:calc(var(--w) * 1.754);margin-left:calc(var(--step) - var(--w));cursor:pointer;transition:transform .15s,opacity .2s,filter .2s}
+#hand .card:first-child{margin-left:0}
+#hand .card.ok:hover{transform:translateY(-6px)}
+#hand .card.no{filter:brightness(.55) grayscale(.3);cursor:default}
+#hand .card.tip{box-shadow:0 0 0 3px #8fd0ff,0 0 16px #8fd0ff;transform:translateY(-9px)}
 #panel{display:flex;flex-direction:column;gap:7px}
 .box{background:rgba(0,0,0,.26);border-radius:12px;padding:9px 11px;font-size:13.5px;line-height:1.45}
 .box b{color:#ffd877}
@@ -182,41 +182,7 @@ const SUIT_SPRITE=`<svg width="0" height="0" style="position:absolute" aria-hidd
  <ellipse cx="8.4" cy="8.2" rx="2.4" ry="1.5" fill="#fff4c8" opacity=".8"/>
 </symbol>
 </defs></svg>`;
-const SUITCOL={E:{main:'#c9922e',dark:'#6b4a1e'},G:{main:'#3a7d2c',dark:'#1d5216'},H:{main:'#c0392b',dark:'#7a0f0f'},S:{main:'#d9a21b',dark:'#7a4a00'}};
 const suitIcon=s=>`<svg class="ico" viewBox="0 0 24 24" aria-label="${({E:'Eichel',G:'Gras',H:'Herz',S:'Schellen'})[s]}"><use href="#suit-${s}"/></svg>`;
-function pip(s,x,y,w){return `<use href="#suit-${s}" x="${x}" y="${y}" width="${w}" height="${w}"/>`}
-function figureSVG(r,s){
-  const c=SUITCOL[s],blue='#2c5aa0',skin='#f3cfa6';
-  let hat='',beard='';
-  if(r==='K'){hat=`<path d="M22.5 24l1.6-8 3.2 4.4L30 13l2.7 7.4 3.2-4.4 1.6 8z" fill="#f0c43a" stroke="#6b4a00" stroke-width=".7" stroke-linejoin="round"/><circle cx="30" cy="18.5" r="1.1" fill="#c0392b"/>`;
-    beard=`<path d="M24.6 31c.6 6 2.8 8.4 5.4 8.4s4.8-2.4 5.4-8.4c-1.6 1.6-3.4 2.2-5.4 2.2s-3.8-.6-5.4-2.2z" fill="#efe9dc" stroke="#888" stroke-width=".5"/>`}
-  if(r==='O'){hat=`<path d="M20.5 25.6c1.4-6.6 17.6-6.6 19 0z" fill="${blue}" stroke="#1a2f55" stroke-width=".7"/><path d="M37 21.5c3.6-6 7.4-6.4 10-10-4.2 1.4-8.2 3.6-10 10" fill="#efe9dc" stroke="#666" stroke-width=".5"/>`;
-    beard=`<path d="M26.6 32.4q3.4-1.6 6.8 0" stroke="#6b4a2a" stroke-width="1.2" fill="none" stroke-linecap="round"/>`}
-  if(r==='U'){hat=`<path d="M23 25.4c0-5.6 14-5.6 14 0z" fill="${c.dark}" stroke="#333" stroke-width=".6"/><circle cx="30" cy="20.4" r="1.4" fill="#f0c43a"/>`}
-  const cape=r==='K'?`<path d="M17 86 19 44q1-7 11-8 10 1 11 8l2 42z" fill="${blue}" stroke="#1a2f55" stroke-width=".7"/><path d="M19 44q1-7 11-8 10 1 11 8" fill="none" stroke="#fff" stroke-width="2.4" stroke-dasharray="1.6 1.2"/>`:'';
-  const body=`<path d="M20 86 21 46q1-8 9-9 8 1 9 9l1 40z" fill="${c.main}" stroke="#333" stroke-width=".7"/>
-    <path d="M25 38l5 9 5-9" fill="${r==='K'?'#f0c43a':blue}" stroke="#333" stroke-width=".5"/>
-    <rect x="21" y="60" width="18" height="3" fill="#6b4a2a"/><circle cx="30" cy="52" r="1" fill="#f0c43a"/><circle cx="30" cy="56" r="1" fill="#f0c43a"/><circle cx="30" cy="68" r="1" fill="#f0c43a"/>`;
-  const head=`<circle cx="30" cy="29.5" r="6.6" fill="${skin}" stroke="#333" stroke-width=".6"/><circle cx="27.6" cy="28.8" r=".7" fill="#333"/><circle cx="32.4" cy="28.8" r=".7" fill="#333"/>`;
-  let p='',extra='';
-  if(r==='O')p=pip(s,4,4,16);
-  if(r==='U')p=pip(s,5,68,16);
-  if(r==='K'){p=pip(s,39,46,14);extra=`<path d="M17 72V40" stroke="#6b4a00" stroke-width="1.6"/><circle cx="17" cy="38.5" r="2.2" fill="#f0c43a" stroke="#6b4a00" stroke-width=".6"/>`}
-  return cape+body+head+beard+hat+extra+p+`<text x="55" y="15" text-anchor="end" class="cl">${r}</text>`;
-}
-const PIPS={
-  '7':[[17,18],[17,42],[17,66],[36,18],[36,42],[36,66],[26.5,30]],
-  '8':[[17,14],[17,32],[17,50],[17,68],[36,14],[36,32],[36,50],[36,68]],
-  '9':[[17,14],[17,32],[17,50],[17,68],[36,14],[36,32],[36,50],[36,68],[26.5,41]],
-  '10':[[17,14],[17,32],[17,50],[17,68],[36,14],[36,32],[36,50],[36,68],[26.5,23],[26.5,59]]
-};
-function cardSVG(s,r){
-  let inner;
-  if(r==='A')inner=pip(s,6,8,26)+pip(s,28,54,26)+`<path d="M12 70q8-12 18-14t18-16" stroke="${SUITCOL[s].dark}" stroke-width=".8" fill="none" stroke-dasharray="2 1.5"/>`;
-  else if(r==='K'||r==='O'||r==='U')inner=figureSVG(r,s);
-  else inner=PIPS[r].map(([x,y])=>pip(s,x,y,10)).join('')+`<text x="4" y="15" class="cl"${r==='10'?' textLength="12" lengthAdjust="spacingAndGlyphs"':''}>${r}</text>`;
-  return `<svg viewBox="0 0 60 90" aria-hidden="true"><rect x=".6" y=".6" width="58.8" height="88.8" rx="5" fill="#fbf5e3" stroke="#2b2b2b" stroke-width=".8"/><rect x="3" y="3" width="54" height="84" rx="3.4" fill="none" stroke="#b08a4a" stroke-width=".6"/>${inner}</svg>`;
-}
 document.body.insertAdjacentHTML('afterbegin',SUIT_SPRITE);
 const SUITSYM={E:suitIcon('E'),G:suitIcon('G'),H:suitIcon('H'),S:suitIcon('S')};
 const PTS={A:11,'10':10,K:4,O:3,U:2,'9':0,'8':0,'7':0};
@@ -327,7 +293,7 @@ async function playCard(id){
 const rel=abs=>(abs-ST.me+4)%4;
 const absOf=r=>(ST.me+r)%4;
 const nameOf=i=>ST.seats[i]?ST.seats[i].name:'Platz '+(i+1);
-function cardHTML(id,cls=''){const c=card(id);return `<div class="card ${cls}" data-id="${c.id}">${cardSVG(c.s,c.r)}</div>`}
+function cardHTML(id,cls=''){return `<div class="card ${cls}" data-id="${id}"><img src="/cards/${id}.svg" alt="${cname(id)}" draggable="false"></div>`}
 function renderHeader(){
   const h=$('hbtns');
   if(!ST){h.innerHTML=`<button class="ghost sm" id="bRules">Regeln &amp; Tipps</button>`;$('hsub').textContent='mit Freunden'}
@@ -379,7 +345,7 @@ function render(){
     for(const id of g.hand){const cls=[];if(ST.settings.aids&&g.trumps.includes(id))cls.push('trump');
       if(myTurn){cls.push(g.legal.includes(id)?'ok':'no');if(tipId===id)cls.push('tip')}
       hh+=cardHTML(id,cls.join(' '))}
-    for(let i=g.hand.length;i<8;i++)hh+='<div class="slotempty"></div>';
+    
   }
   $('hand').innerHTML=hh;
   $('hand').querySelectorAll('.card').forEach(el=>el.onclick=()=>playCard(el.dataset.id));
@@ -544,6 +510,8 @@ const RULES=`<h2>Schafkopf – Regeln &amp; Tipps</h2>
   <p>Die Punkte sind eine Faustregel. Der Trainer prüft zusätzlich per <b>Simulation</b>: Er spielt dein Blatt viele Male mit zufällig verteilten Gegnerkarten durch und zeigt dir Gewinnchance und durchschnittlichen Ertrag jedes Spiels.</p>
   <h3>Wie der Trainer Karten-Tipps berechnet</h3>
   <p>Bei jedem Zug verteilt er die Karten, die du nicht kennst, viele Male neu – aber nur so, wie es zu allem passt, was schon passiert ist: gespielte Karten, wer in welcher Farbe oder Trumpf schon frei ist, wo die Rufsau noch sein kann und dass der Spieler sein Spiel ansagen konnte. Dann spielt er jede deiner erlaubten Karten bis zum Ende durch und vergleicht Gewinnchance und Augen.</p>
+  <h3>Kartenbilder</h3>
+  <p class="hint">Bayerisches Blatt von Benjamin Löwe aus dem KDE-Spiel <a href="https://github.com/benni0815/SchafKopf">SchafKopf</a>, Lizenz <a href="https://creativecommons.org/licenses/by-nc-sa/2.0/de/">CC BY-NC-SA 2.0 DE</a>.</p>
   <h3>Mitzählen lernen</h3>
   <ul><li>Zähl nur die Stiche <b>deiner Partei</b> – den Rest kennst du aus 120 minus deinen Augen.</li>
   <li>Denk in Paketen: Sau + Zehn = 21, zwei Sauen = 22, König + Ober = 7.</li>
